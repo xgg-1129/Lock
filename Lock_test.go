@@ -8,14 +8,10 @@ import (
 func TestFifo_SpinLock_Lock(t *testing.T) {
 	var w sync.WaitGroup
 	n:=0
-	var l = Fifo_SpinLock{
-		owner: 0,
-		next:  0,
-	}
-
-	for i:=0;i<9;i++{
+	var l = newFifo_SpinLock()
+	for i:=0;i<7;i++{
 		w.Add(1)
-		go routine(&l,&w,1-i%2*2,&n)
+		go routine(	l,&w,1-i%2*2,&n)
 	}
 	w.Wait()
 	println(n)

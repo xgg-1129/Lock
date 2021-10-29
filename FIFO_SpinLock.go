@@ -6,24 +6,31 @@ import (
 )
 
 type Fifo_SpinLock struct {
-	//真正的自旋锁
-	mu sync.Mutex
-	//当前自旋锁的拥有者
-	owner uint32
-	//下一个自旋锁的拥有者
-	next uint32
-}
+	owner uint64
+	next uint64
 
+	//mu用来模拟cpu的原子操作
+	mu sync.Mutex
+}
+func newFifo_SpinLock()*Fifo_SpinLock{
+	res:=new(Fifo_SpinLock)
+	res.owner = 0
+	res.next = 0
+	return res
+}
 func (l *Fifo_SpinLock) Lock(){
 	l.mu.Lock()
-	var self uint32
-	atomic.StoreUint32(&self,l.next)
-	atomic.AddUint32(&(l.next),1)
+	//获取next和owner
+	owner:=l.next
+	next:=l.owner
+	l.next++
 	l.mu.Unlock()
-	for self != l.owner{
+	//获取next和owner
+	for owner != next{
+		next=l.owner
 	}
 	return
 }
 func (l *Fifo_SpinLock) UnLock(){
-	atomic.AddUint32(&(l.owner),1)
+	atomic.AddUint64(&(l.owner),1)
 }
