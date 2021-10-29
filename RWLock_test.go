@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestFifo_SpinLock_Lock(t *testing.T) {
+func TestRWLock(t *testing.T) {
 	var w sync.WaitGroup
 	n:=0
 	var l = NewRWLock()
@@ -29,14 +29,4 @@ func TestFifo_SpinLock_Lock(t *testing.T) {
 	}
 	w.Wait()
 	println(n)
-}
-func routine(l *rwLock,w *sync.WaitGroup,i int,n *int){
-	defer w.Add(-1)
-	for t:=0;t<1000000;t++{
-		func(){
-			l.RLock()
-			defer l.RUnLock()
-			*n +=i
-		}()
-	}
 }
